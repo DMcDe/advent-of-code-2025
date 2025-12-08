@@ -74,6 +74,6 @@ def main():
 
     print("Part B solution:", partB(strs))
 
-
 if __name__ == "__main__":
     main()
+    
