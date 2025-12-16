@@ -5,6 +5,8 @@ from typing import Dict, Set
 adj = {}
 
 # Cache annotation does memoization for us
+# Have to use a global dict because of this and can't pass as an arg bc the cache annotation uses hash
+# So if you try and pass adj as an arg, you get "unhashable type: dict"
 @cache
 def partB(node: str, dac: bool, fft: bool) -> int:
     if node == "out":
