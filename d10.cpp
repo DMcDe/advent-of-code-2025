@@ -45,11 +45,42 @@ int singleLinePartA(std::vector<bool> &trg, std::vector<bool> &crr, std::vector<
                     singleLinePartA(trg, prs, btns, idx + 1, min, presses + 1));
 }
 
+int singleLinePartB(std::vector<int> &trg, std::vector<int> &crr, std::vector<std::vector<int>> &btns, int min, int presses) {
+    // If worse than min, return min
+    if (presses >= min) return min;
+
+    // If state matches goal, return presses
+    bool match = true;
+    for (int i= 0; i < trg.size(); i++) {
+        if (trg[i] != crr[i]) {
+            match = false;
+            break;
+        }
+    }
+    if (match) return presses;
+
+    // Update state to pressing button
+    int mn = min;
+    bool overshot = false;
+    for (int i = 0; i < btns.size(); i++) {
+        for (int l : btns[i]) {
+            // If overshot, can't be right -- don't bother exploring
+            if (++crr[l] > trg[l]) overshot = true;
+        }
+        if (!overshot) mn = std::min(mn, singleLinePartB(trg, crr, btns, mn, presses + 1));
+        for (int l : btns[i]) {
+            --crr[l];
+        }
+    }
+
+    return mn;
+}
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
 
     int partA = 0;
+    int partB = 0;
 
     std::string str;
     char ch;
@@ -90,22 +121,31 @@ int main() {
         }
 
         // Read in joltages
+        int jlt_sum = 0;
+        
         // std::cout << "Joltages: ";
         while (ch != '}') {
             ss >> n >> ch;
             joltages.push_back(n);
+            jlt_sum += n;
             // std::cout << n << " ";
         }
 
         // std::cout << "\n";
 
-        std::vector<bool> initial(target.size());
-        int presses = singleLinePartA(target, initial, buttons, 0, target.size(), 0);
-        partA += presses;
-        std::cout << presses << " ";
+        std::vector<bool> initA(target.size());
+        int pressesA = singleLinePartA(target, initA, buttons, 0, target.size(), 0);
+        partA += pressesA;
+        std::cout << pressesA << " ";
+
+        std::vector<int> initB(joltages.size());
+        int pressesB = singleLinePartB(joltages, initB, buttons, jlt_sum, 0);
+        partB += pressesB;
+        std::cout << pressesB << "\n";
     }
 
-    std::cout << "\nPart A solution: " << partA << "\n";
+    std::cout << "Part A solution: " << partA << "\n";
+    std::cout << "Part B solution: " << partB << "\n";
 
     return 0;
 }
